@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers\Backend;
 
-use App\Http\Controllers\Controller;
-use App\Models\Backend\Product;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use App\Models\Backend\Product;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
 
 class ProductController extends Controller
 {
@@ -43,20 +44,41 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        // validasi request dari form
+        // dd($request->all());
+        // validasi request dari form 
         $request->validate([
-
+            'title' => 'required',
+            'harga' => 'required|numeric',
+            'image' => 'required|image|mimes:jpg,png,jpeg',
+            'status' => 'required',
+            'desc' => 'required'
         ], [
-
+            'title.required' => 'Wajib di isi',
+            'harga.required' => 'Wajib di isi',
+            'harga.numeric' => 'Harga Wajib Angka',
+            'image.required' => 'Wajib di isi',
+            'image.image' => 'Wajib berupa image',
+            'image.mimes' => 'Gambar Hanya JPG dan PNG',
+            'image.size' => 'Size Gambar Hanya Max 2 MB',
+            'status.required' => 'Wajib di isi',
+            'desc.required' => 'Wajib di isi'
         ]);
 
         # membuat variabel baru untuk penamaan file image kita menggunakan time() agar unique tidak sama dengan gambar lain
         $imageName = time() . '.' . $request->image->extension();
+        // dd($imageName);
 
         # gunakan query untuk update data baru kedalam database dengan memanggil model product
 
         # awal query
-
+        Product::create([
+            'title' => $request->title,
+            'slug' => Str::slug($request->title),
+            'harga' => $request->harga,
+            'image' => $imageName,
+            'status' => $request->status,
+            'desc' => $request->desc,
+        ]);
         # akhir query
 
         # menentukan folder mana yang akan menyimpan gambar hasil upload kita
@@ -80,7 +102,7 @@ class ProductController extends Controller
 
         # gunakan if kondisi jika data diatas kosong atau ID tidak sesuai pada database
         if (empty($data)) {
-            # jika data kosong empty() maka
+            # jika data kosong empty() maka 
             return redirect()->route('product.index')->with('galat', 'product not found');
             # fungsi with() adalah untuk membawa notifikasi dengan session yang berupa pemberitahuan
         }
@@ -98,7 +120,7 @@ class ProductController extends Controller
      */
     public function update(Request $request, $id)
     {
-        # membuat variabel untuk cek apakah id tersebut ada atau tidak menggunakan find / where by id
+        # membuat variabel untuk cek apakah id tersebut ada atau tidak menggunakan find / where by id 
         $data = Product::find($id);
 
         # membuat if satu kondisi dimana jika kosong data tersebut akan di kembalikan
@@ -109,9 +131,20 @@ class ProductController extends Controller
 
         # membuat validasi kembali dari request yang didapatkan dari form update
         $request->validate([
-
+            'title' => 'required',
+            'harga' => 'required|numeric',
+            'image' => 'image|mimes:jpg,png,jpeg',
+            'status' => 'required',
+            'desc' => 'required'
         ], [
-            
+            'title.required' => 'Wajib di isi',
+            'harga.required' => 'Wajib di isi',
+            'harga.numeric' => 'Harga Wajib Angka',
+            'image.required' => 'Wajib di isi',
+            'image.mimes' => 'Gambar Hanya JPG dan PNG',
+            'image.size' => 'Size Gambar Hanya Max 2 MB',
+            'status.required' => 'Wajib di isi',
+            'desc.required' => 'Wajib di isi'
         ]);
 
         # membuat if 2 kondisi dimana jika ada request pergantian thumbnail atau gambar maka
@@ -129,7 +162,13 @@ class ProductController extends Controller
             # gunakan query untuk update data baru kedalam database dengan memanggil model product
 
             # awal query
-
+            $data->update([
+                'title' => $request->title,
+                'harga' => $request->harga,
+                'image' => $imageName,
+                'status' => $request->status,
+                'desc' => $request->desc,
+            ]);
             # akhir query
 
             # menentukan folder mana yang akan menyimpan gambar hasil upload kita
@@ -140,7 +179,12 @@ class ProductController extends Controller
             # jika tidak ada request image maka memanggil query update dengan model
 
             # awal query
-
+            $data->update([
+                'title' => $request->title,
+                'harga' => $request->harga,
+                'status' => $request->status,
+                'desc' => $request->desc,
+            ]);
             # akhir query
         }
 
@@ -156,7 +200,7 @@ class ProductController extends Controller
      */
     public function destroy($id)
     {
-        # membuat variabel untuk cek apakah id tersebut ada atau tidak menggunakan find / where by id
+        # membuat variabel untuk cek apakah id tersebut ada atau tidak menggunakan find / where by id 
         $data = Product::find($id);
 
         # membuat if satu kondisi dimana jika kosong data tersebut akan di kembalikan
@@ -171,7 +215,7 @@ class ProductController extends Controller
         # gunakan query delete orm untuk menghapus data pada tabel
 
         # awal query
-
+        $data->delete();
         # akhir query
 
         # kembalikan hasil controller ini ke halaman list product

@@ -25,7 +25,7 @@ Auth::routes();
 
 // prefixs url, seluruh url mengandung awalan v1
 // contoh http://127.0.0.1:8000/v1/product dan seterusnya
-Route::prefix('v1')->group(function () {
+Route::prefix('v1')->middleware('role:admin')->group(function () {
 
     // dashboard 
     Route::get('', [App\Http\Controllers\Backend\IndexController::class, 'index'])->name('dashboard');

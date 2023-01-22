@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Backend\Product;
 
 class HomeController extends Controller
 {
@@ -12,8 +13,12 @@ class HomeController extends Controller
      */
     public function index()
     {
-        //
-        return view('frontend.home.index');
+        // variabel baru
+        $data = Product::where('status', 'draft')->get();
+
+        // cek jumlah data yang tersedia
+        // $data
+        return view('frontend.home.index', compact('data'));
     }
 
     /**
